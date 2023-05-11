@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 import configparser
 import os
+import threading
 
 from assets import QICON_PATH
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QDesktopWidget, \
     QMessageBox
 from assets import TWO_BOX_PATH
+from modules.thyj_win import create_player
 from modules.two_box import TwoBox
 
 
@@ -181,3 +183,4 @@ class InitWindow(QWidget):
             # Get the password for the current account
             password = self.accounts[account]
             two_box.thyj_startup()
+            create_player(account, password)

@@ -3,8 +3,8 @@ import os
 import sys
 import time
 from configparser import ConfigParser
+from assets import TWO_BOX_PATH
 
-import pywinauto
 import win32api
 import win32con
 import win32gui
@@ -84,9 +84,9 @@ class TwoBox(Win):
         super().__init__(_TITLE)
         self.file_path = file_path
         self.execute()
-        self.app = pywinauto.application.Application(backend="uia")
-        self.app.connect(title=_TITLE, timeout=10)
-        self.window = self.app.Dialog
+        # self.app = pywinauto.application.Application(backend="uia")
+        # self.app.connect(title=_TITLE, timeout=10)
+        # self.window = self.app.Dialog
 
     def execute(self):
         os.startfile(self.file_path)
@@ -94,18 +94,37 @@ class TwoBox(Win):
         self.set_foreground()
 
     def thyj_startup(self):
-        self.window.menu_select("#0")
-        # self.window.print_control_identifiers()
-        menu_win = self.window['文件(F)Menu']
-        menu_item_2 = self.window['MenuItem2']
-        menu_2_text = menu_item_2.window_text()
+        """start up a thyj client."""
+        # self.window.menu_select("#0")
+        # # self.window.print_control_identifiers()
+        # menu_win = self.window['Menu文件(F)..']
+        # menu_item_2 = self.window['MenuItem2']
+        # menu_2_text = menu_item_2.window_text()
+        window_handle = win32gui.FindWindow(None, _TITLE)
+
+        # Get the menu handle
+        menu_handle = win32gui.GetMenu(window_handle)
+
+        # Get the submenu handle at index 0
+        submenu_handle = win32gui.GetSubMenu(menu_handle, 0)
+
+        # Get the first menu item handle
+        menu_item_handle = win32gui.GetMenuItemID(submenu_handle, 0)
+
+        # Send a WM_COMMAND message to click the menu item
+        win32api.PostMessage(window_handle, win32con.WM_COMMAND, menu_item_handle, 0)
+        while True:
+            open_dialog = win32gui.FindWindow('#32770', '打开')
+            if open_dialog != 0:
+                break
+            time.sleep(0.1)
 
         def two_box_init(dialog_window):
 
             hwdlist = []
             id_count = 0
             edit_control_handle = 0
-            win32gui.EnumChildWindows(dialog_window.handle, lambda hwnd, param: param.append(hwnd), hwdlist)
+            win32gui.EnumChildWindows(dialog_window, lambda hwnd, param: param.append(hwnd), hwdlist)
             for i in hwdlist:
                 ctrlid = win32gui.GetDlgCtrlID(i)
                 if ctrlid == 1148:
@@ -113,16 +132,19 @@ class TwoBox(Win):
                 if id_count == 3:
                     edit_control_handle = i
                     break
-
+            time.sleep(1)
             send_str(read_config('DEFAULT', 'launch_path'), edit_control_handle)
-            win32api.PostMessage(dialog_window.handle, win32con.WM_KEYDOWN, 0x0D, 0)
+            # str1 = win32gui.SendMessage(edit_control_handle, win32con.WM_GETTEXT, 80, )
+            # print(str1)
+            win32api.PostMessage(dialog_window, win32con.WM_KEYDOWN, 0x0D, 0)
 
-        if "launch.exe" in menu_2_text:
-            menu_win.item_by_path("#1").select()
-
-        else:
-            menu_win.item_by_path("#0").select()
-            open_dialog = self.window['打开Dialog']
-            two_box_init(open_dialog)
-
-        return True
+        two_box_init(open_dialog)
+        # if "launch.exe" in menu_2_text:
+        #     menu_win.item_by_path("#1").select()
+        #
+        # else:
+        #     menu_win.item_by_path("#0").select()
+        #     open_dialog = self.window['打开Dialog']
+        #     two_box_init(open_dialog)
+        #
+        # return True

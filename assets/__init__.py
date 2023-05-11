@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TWO_BOX_PATH = os.path.join(BASE_DIR, '2Box', '2Box.exe')
-QICON_PATH = os.path.join(BASE_DIR, 'QtWicon.bmp')
+BASE_DIR = os.path.split(os.path.realpath(__file__))[0]
+TWO_BOX_PATH = BASE_DIR + r"\2Box\2Box.exe"
+QICON_PATH = BASE_DIR + r"\QtWicon.bmp"
